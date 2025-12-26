@@ -62,6 +62,9 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     if (!isPasswordValid) {
       return res.status(400).json({ err: "Invalid credentials" });
     }
+
+    const token = generateTokenAndSetCookies(res, user.id);
+
     return res.status(200).json({
       message: "Login successfully",
       user: { id: user.id, name: user.name, email: user.email },
