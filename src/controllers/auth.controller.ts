@@ -74,3 +74,14 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     return next(new AppError("Internal Server Error", 500));
   }
 }
+
+export async function logout(req: Request, res: Response, next: NextFunction) {
+  res
+    .cookie("token", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+    .json({ message: "Logged out successfully" });
+}

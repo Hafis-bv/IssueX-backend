@@ -4,16 +4,19 @@ import { logger } from "./middleware/logger";
 import { projectRouter } from "./routes/project.route";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import { taskRouter } from "./routes/task.route";
+import cookieParser from "cookie-parser";
+import { authMiddleware } from "./middleware/authMiddleware";
 
 const app = express();
 const PORT = process.env.PORT;
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(logger);
 
 app.use("/api/auth", authRouter);
-app.use("/api/projects", projectRouter);
-app.use("/api/tasks", taskRouter);
+app.use("/api/projects", authMiddleware, projectRouter);
+app.use("/api/tasks", authMiddleware, taskRouter);
 
 app.get("/api", (req, res) => {
   res.json({ msg: "Hello World!" });
