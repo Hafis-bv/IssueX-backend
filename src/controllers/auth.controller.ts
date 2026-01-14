@@ -3,6 +3,8 @@ import { prisma } from "../utils/prisma";
 import bcrypt from "bcryptjs";
 import { generateTokenAndSetCookies } from "../utils/generateTokenAndSetCookies";
 import { AppError } from "../utils/AppError";
+import crypto from "crypto";
+import { sendEmail } from "../utils/sendEmail";
 
 export async function register(
   req: Request,
@@ -84,4 +86,83 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
     .json({ message: "Logged out successfully" });
+}
+
+export async function forgot(req: Request, res: Response, next: NextFunction) {
+  const { email } = req.body;
+  if (!email) {
+    return next(new AppError("Email is required", 400));
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+
+    await prisma.user.update({
+      where: { email },
+      data: {
+        resetPasswordToken: hashedOtp,
+        resetPasswordExpiry: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+
+    await sendEmail(
+      email,
+      "Forgot your password",
+      `
+      <h1>Forgot your password</h1>
+      <h2>Here is your OTP code</h2>
+      <h3>${otp}</h3>
+      `
+    );
+    return res.json({ message: "Your otp sent successfully" });
+  } catch (err) {
+    console.log(err);
+    return next(new AppError("Internal Server Error", 500));
+  }
+}
+
+export async function reset(req: Request, res: Response, next: NextFunction) {
+  const { otp, email, newPassword } = req.body;
+  const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
+    if (hashedOtp !== user.resetPasswordToken) {
+      return next(new AppError("Otp code is wrong", 400));
+    }
+    if (
+      !user.resetPasswordExpiry ||
+      user.resetPasswordExpiry?.getTime() < Date.now()
+    ) {
+      return next(new AppError("Otp expired", 400));
+    }
+    if (!newPassword || newPassword.length < 6) {
+      return next(
+        new AppError("Password must be at least 6 characters long", 400)
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { email },
+      data: {
+        password: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordExpiry: null,
+      },
+    });
+    return res.json({ message: "Password changed successfully" });
+  } catch (err) {
+    console.log(err);
+    return next(new AppError("Internal Server Error", 500));
+  }
 }

@@ -21,6 +21,8 @@ model User {
   email String @unique
   password String 
   tasks Task[]
+  resetPasswordToken String? @map("reset_password_token")
+  resetPasswordExpiry DateTime? @map("reset_password_expiry")
 
   @@map("users")
 }
