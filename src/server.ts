@@ -6,6 +6,7 @@ import { errorMiddleware } from "./middleware/errorMiddleware";
 import { taskRouter } from "./routes/task.route";
 import cookieParser from "cookie-parser";
 import { authMiddleware } from "./middleware/authMiddleware";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -13,6 +14,12 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(cookieParser());
 app.use(logger);
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  }),
+);
 
 app.use("/api/auth", authRouter);
 app.use("/api/projects", authMiddleware, projectRouter);
