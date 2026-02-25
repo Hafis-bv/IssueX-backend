@@ -9,7 +9,7 @@ import { sendEmail } from "../utils/sendEmail";
 export async function register(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { name, email, password } = req.body;
   try {
@@ -79,7 +79,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
 export async function logout(req: Request, res: Response, next: NextFunction) {
   res
-    .cookie("token", "", {
+    .clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
@@ -118,7 +118,7 @@ export async function forgot(req: Request, res: Response, next: NextFunction) {
       <h1>Forgot your password</h1>
       <h2>Here is your OTP code</h2>
       <h3>${otp}</h3>
-      `
+      `,
     );
     return res.json({ message: "Your otp sent successfully" });
   } catch (err) {
@@ -146,7 +146,7 @@ export async function reset(req: Request, res: Response, next: NextFunction) {
     }
     if (!newPassword || newPassword.length < 6) {
       return next(
-        new AppError("Password must be at least 6 characters long", 400)
+        new AppError("Password must be at least 6 characters long", 400),
       );
     }
 

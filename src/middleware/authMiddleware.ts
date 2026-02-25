@@ -7,11 +7,10 @@ import { JwtPayload } from "../types/auth";
 export async function authMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const token = req.cookies?.token;
-
     if (!token) {
       return next(new AppError("Not authorized, no token found", 401));
     }
