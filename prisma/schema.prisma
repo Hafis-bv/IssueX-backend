@@ -23,6 +23,7 @@ model User {
   tasks Task[]
   resetPasswordToken String? @map("reset_password_token")
   resetPasswordExpiry DateTime? @map("reset_password_expiry")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("users")
 }
