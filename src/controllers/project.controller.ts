@@ -8,13 +8,18 @@ export async function createProject(
   next: NextFunction,
 ) {
   const { name } = req.body;
+  const { id } = req.params;
   if (!name) {
     return next(new AppError("Project must have name", 400));
+  }
+  if (!id) {
+    return next(new AppError("User id is required", 404));
   }
   try {
     const project = await prisma.project.create({
       data: {
         name,
+        userId: id,
       },
     });
     return res.json({ message: "Project created successfully", project });
