@@ -5,7 +5,7 @@ import { prisma } from "../utils/prisma";
 export async function createProject(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { name } = req.body;
   if (!name) {
@@ -27,7 +27,7 @@ export async function createProject(
 export async function deleteProject(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { id } = req.params;
   if (!id) {
@@ -49,7 +49,7 @@ export async function deleteProject(
 export async function updateProject(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { id } = req.params;
   const { name } = req.body;
@@ -79,13 +79,35 @@ export async function updateProject(
 export async function getAllProjects(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const projects = await prisma.project.findMany();
     return res.json(projects);
   } catch (err) {
     console.log(err);
+    return next(new AppError("Internal Server Error", 500));
+  }
+}
+
+export async function getUserProjects(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const { id } = req.params;
+  if (!id) {
+    return next(new AppError("User id is required", 404));
+  }
+  try {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) return next(new AppError("User not found", 404));
+
+    const projects = await prisma.project.findMany({
+      where: { userId: id },
+    });
+    return res.json(projects);
+  } catch (err) {
     return next(new AppError("Internal Server Error", 500));
   }
 }

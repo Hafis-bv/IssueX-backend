@@ -21,9 +21,11 @@ model User {
   email String @unique
   password String 
   tasks Task[]
+  projects Project[]
   resetPasswordToken String? @map("reset_password_token")
   resetPasswordExpiry DateTime? @map("reset_password_expiry")
   createdAt DateTime @default(now()) @map("created_at")
+  
 
   @@map("users")
 }
@@ -32,6 +34,8 @@ model Project {
   id String @id @default(uuid()) 
   name String
   tasks Task[]
+  userId String? 
+  user User? @relation(fields: [userId],references: [id])
 
   @@map("projects")
 }
