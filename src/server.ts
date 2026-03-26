@@ -7,6 +7,8 @@ import { taskRouter } from "./routes/task.route";
 import cookieParser from "cookie-parser";
 import { authMiddleware } from "./middleware/authMiddleware";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -20,6 +22,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/auth", authRouter);
 app.use("/api/projects", authMiddleware, projectRouter);
