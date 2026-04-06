@@ -5,11 +5,11 @@ import { prisma } from "../utils/prisma";
 export async function createTask(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { title, description, assigneeId, projectId } = req.body;
   if (!title) {
-    return next(new AppError("Title is requierd", 400));
+    return next(new AppError("Title is required", 400));
   }
   try {
     const task = await prisma.task.create({
@@ -44,7 +44,7 @@ export async function getTask(req: Request, res: Response, next: NextFunction) {
 export async function getAllTasks(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const tasks = await prisma.task.findMany();
@@ -58,7 +58,7 @@ export async function getAllTasks(
 export async function getUsersTasks(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { id } = req.params;
   if (!id) {
@@ -81,7 +81,7 @@ export async function getUsersTasks(
 export async function deleteTask(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { id } = req.params;
   if (!id) {
@@ -103,7 +103,7 @@ export async function deleteTask(
 export async function updateTask(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { id } = req.params;
   const { title, description, status } = req.body;
