@@ -13,12 +13,12 @@ export const generateTokenAndSetCookies: GenerateTokenAndSetCookies = (
     expiresIn: "7d",
   });
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: true,          // always true in prod — Render is always HTTPS
+  sameSite: "none",      // required for cross-origin cookies
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
 
   return token;
 };
